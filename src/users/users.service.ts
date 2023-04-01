@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserInput, UpdateUserInput } from './dto/CreateUserInput';
+import { CreateUserInput, UpdateUserInput } from './dto';
 import { UserRepository } from './repositories';
 
 @Injectable()
@@ -14,12 +14,12 @@ export class UsersService {
     })
 
     if (foundUserByEmail)
-      throw new ConflictException('Já existe');
+      throw new ConflictException('Username or password is invalid');
 
-      const password = encodePassword(input.password)
+    const password = encodePassword(input.password)
 
     try {
-      return this.userRepository.create({...input, password});
+      return this.userRepository.create({ ...input, password});
     } catch {
       throw new InternalServerErrorException();
     }
@@ -35,7 +35,7 @@ export class UsersService {
     })
 
     if (!foundUserById)
-    throw new BadRequestException('Usuário não existe')
+      throw new BadRequestException('Usuário não existe')
 
     try {
       return this.userRepository.update(input, id)
@@ -45,7 +45,7 @@ export class UsersService {
   }
 
   findOne(id: string) {
-    return this.userRepository.findByUnique({id: id})
+    return this.userRepository.findByUnique({ id: id })
   }
 
   remove(id: string) {

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  nestjs-auth:
+    image: postgres 
+    environment: 
+      POSTGRES_PASSWORD: 'postgres'
+    container_name: nestjs-auth 
+
+    ports:
+      - '5432:5432'
+    volumes:
+      - .docker/dbdata:/var/lib/postgresql/data
