@@ -1,4 +1,6 @@
-import { IsNotEmpty, Length, IsEnum, IsEmail } from 'class-validator';
+import { IsNotEmpty, Length, IsEnum, IsEmail, MinLength, MaxLength, Matches } from 'class-validator';
+import { MessagesHelper } from 'src/helpers/messages.helper';
+import { RegExHelper } from 'src/helpers/regex.helper';
 
 enum Role {
     ADMIN = "ADMIN",
@@ -9,18 +11,20 @@ enum Role {
 
 export class CreateUserInput {
 
-    @IsNotEmpty({ message: 'Name is required' })
+    @IsNotEmpty({ message: MessagesHelper.NAME_REQUIRED })
     name: string;
 
-    @IsNotEmpty({ message: 'Email is required' })
-    @IsEmail({} , { message: 'Invalid email address' })
+    @IsNotEmpty({ message: MessagesHelper.EMAIL_REQUIRED })
+    @IsEmail({}, { message: MessagesHelper.EMAIL_VALID })
     email: string;
 
-    @IsNotEmpty({ message: 'Password is required' })
-    @Length(8, 50, { message: 'The password must have at least 8 characters' })
+    @IsNotEmpty({ message: MessagesHelper.PASSWORD_REQUIRED })
+    @MinLength(8)
+    @MaxLength(30)
+    @Matches(RegExHelper.password, { message: MessagesHelper.PASSWORD_VALID })
     password: string;
 
-    @IsNotEmpty({ message: 'Type is required' })
+    @IsNotEmpty({ message: MessagesHelper.TYPE_REQUIRED })
     @IsEnum(Role)
     type: Role;
 

@@ -1,35 +1,37 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, BadRequestException, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Body, Put, Param, Delete, HttpStatus, HttpCode } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { AuthGuard } from '@nestjs/passport'
 import { CreateUserInput, UpdateUserInput } from './dto';
 
-@Controller('users')
+@Controller('api/v1/users')
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @HttpCode(204)
   async createUser(@Body() input: CreateUserInput) {
-    return this.usersService.createUser(input)
+    return await this.usersService.createUser(input)
   }
 
   @Get()
-  getAllUsers() {
-    return this.usersService.getAllUsers()
+  async getAllUsers() {
+    return await this.usersService.findAll()
   }
 
   @Get(':id')
-  getOneUser(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async getOneUser(@Param('id') id: string) {
+    return await this.usersService.findOneById(id);
   }
 
   @Put(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async updateUser(@Body() input: UpdateUserInput, @Param('id') id: string) {
-    return this.usersService.updateUser(input, id)
+    return await this.usersService.update(input, id)
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(id);
   }
 }

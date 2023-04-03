@@ -2,14 +2,14 @@ import { ConflictException, Injectable, InternalServerErrorException, BadRequest
 import { encodePassword } from 'src/utils/bcrypt';
 import { CreateUserInput, UpdateUserInput } from './dto';
 import { UserRepository } from './repositories';
+import { MessagesHelper } from 'src/helpers/messages.helper';
 
 @Injectable()
 export class UsersService {
-
   constructor(private readonly userRepository: UserRepository) { }
 
   async createUser(input: CreateUserInput) {
-    const foundUserByEmail = await this.userRepository.findByUnique({
+    const foundUserByEmail = await this.userRepository.findUniqueById({
       email: input.email
     })
 
@@ -19,24 +19,23 @@ export class UsersService {
     const password = encodePassword(input.password)
 
     try {
-      return this.userRepository.create({ ...input, password});
+      return this.userRepository.create({ ...input, password });
     } catch {
       throw new InternalServerErrorException();
     }
   }
 
-  getAllUsers() {
-    return this.userRepository.findAll()
+  async findAll() {
+    return await this.userRepository.findAll()
   }
 
-  async updateUser(input: UpdateUserInput, id: string) {
-    const foundUserById = await this.userRepository.findByUnique({
+  async update(input: UpdateUserInput, id: string) {
+    const foundUserById = await this.userRepository.findUniqueById({
       id: id
     })
 
     if (!foundUserById)
-      throw new BadRequestException('Usuário não existe')
-
+      throw new BadRequestException(MessagesHelper.USER_NOT_FOUND)
     try {
       return this.userRepository.update(input, id)
     } catch (error) {
@@ -44,11 +43,23 @@ export class UsersService {
     }
   }
 
-  findOne(id: string) {
-    return this.userRepository.findByUnique({ id: id })
+  async findOneById(id: string) {
+    try {
+      return await this.userRepository.findUniqueById({ id: id })
+    } catch (error) {
+      throw new BadRequestException(MessagesHelper.PASSWORD_OR_EMAIL_INVALID)
+    }
   }
 
-  remove(id: string) {
-    return this.userRepository.delete(id)
+  async findOneByEmail(email: string) {
+    try {
+      return await this.userRepository.findUniqueByEmail({ email: email })
+    } catch (error) {
+      throw new BadRequestException(MessagesHelper.PASSWORD_OR_EMAIL_INVALID)
+    }
+  }
+
+  async remove(id: string) {
+    return await this.userRepository.delete(id)
   }
 }

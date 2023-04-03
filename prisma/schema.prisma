@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique  
-  password   String
-  type       Role     @default(WAITER)
-  imagePath  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  type      Role     @default(WAITER)
+  imagePath String?  @map("image_path")
+  createdAt DateTime @default(now()) @map("create_at")
+  updateAt  DateTime @updatedAt      @map("update_at")
 
   @@map("users")
 }
